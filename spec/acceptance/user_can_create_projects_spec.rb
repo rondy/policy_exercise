@@ -6,7 +6,9 @@ feature 'User can create projects', type: :request do
       'ACCEPT' => 'application/json'
     }
 
-    User.create!(login: 'rondy', role: 'manager')
+    user_rondy = User.create!(login: 'rondy')
+    user_rondy.update(role: 'manager')
+    user_rondy.projects.delete_all
 
     expect do
       post '/projects',
@@ -47,7 +49,9 @@ feature 'User can create projects', type: :request do
       'ACCEPT' => 'application/json'
     }
 
-    User.create!(login: 'rondy', role: 'guest')
+    user_rondy = User.create!(login: 'rondy')
+    user_rondy.update(role: 'guest')
+    user_rondy.projects.delete_all
 
     expect do
       post '/projects',
@@ -60,6 +64,30 @@ feature 'User can create projects', type: :request do
       {
         'message' => 'Project could not be created!',
         'reason' => 'User must be a manager'
+      }
+    )
+  end
+
+  scenario 'when user is beyond the "projects count limit" rule' do
+    headers = {
+      'ACCEPT' => 'application/json'
+    }
+
+    user_rondy = User.create!(login: 'rondy')
+    user_rondy.update(role: 'manager')
+    5.times { |number| user_rondy.projects.create!(name: "Projeto ##{number}") }
+
+    expect do
+      post '/projects',
+        params: { 'project' => { 'name' => 'Trilha de estudos' } },
+        headers: headers
+    end.not_to change { Project.count }
+
+    expect(response.status).to eq(422)
+    expect(JSON.parse(response.body)).to eq(
+      {
+        'message' => 'Project could not be created!',
+        'reason' => 'User can only create 5 projects'
       }
     )
   end
