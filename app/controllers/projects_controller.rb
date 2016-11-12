@@ -12,24 +12,7 @@ class ProjectsController < ApplicationController
 
       render_successful_project_creation(created_project)
     else
-      json_response = {
-        'message' => 'Project could not be created!',
-        'reason' => checking_result[:error_reason]
-      }
-
-      respond_to do |format|
-        format.json { render inline: json_response.to_json, status: 422 }
-      end
-    end
-  end
-
-  def render_successful_project_creation(created_project)
-    json_response = {
-      message: "Project \"#{created_project.name}\" has been created!"
-    }
-
-    respond_to do |format|
-      format.json { render inline: json_response.to_json }
+      render_failed_permission_for_project_creation(checking_result[:error_reason])
     end
   end
 
@@ -64,5 +47,26 @@ class ProjectsController < ApplicationController
     end
 
     checking_result
+  end
+
+  def render_successful_project_creation(created_project)
+    json_response = {
+      message: "Project \"#{created_project.name}\" has been created!"
+    }
+
+    respond_to do |format|
+      format.json { render inline: json_response.to_json }
+    end
+  end
+
+  def render_failed_permission_for_project_creation(error_reason)
+    json_response = {
+      'message' => 'Project could not be created!',
+      'reason' => error_reason
+    }
+
+    respond_to do |format|
+      format.json { render inline: json_response.to_json, status: 422 }
+    end
   end
 end
