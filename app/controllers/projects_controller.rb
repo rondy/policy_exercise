@@ -10,13 +10,7 @@ class ProjectsController < ApplicationController
           params.require(:project).permit(:name)
         )
 
-      json_response = {
-        message: "Project \"#{created_project.name}\" has been created!"
-      }
-
-      respond_to do |format|
-        format.json { render inline: json_response.to_json }
-      end
+      render_successful_project_creation(created_project)
     else
       json_response = {
         'message' => 'Project could not be created!',
@@ -26,6 +20,16 @@ class ProjectsController < ApplicationController
       respond_to do |format|
         format.json { render inline: json_response.to_json, status: 422 }
       end
+    end
+  end
+
+  def render_successful_project_creation(created_project)
+    json_response = {
+      message: "Project \"#{created_project.name}\" has been created!"
+    }
+
+    respond_to do |format|
+      format.json { render inline: json_response.to_json }
     end
   end
 
