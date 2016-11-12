@@ -1,12 +1,8 @@
 class ProjectsController < ApplicationController
+
+  before_action :ensure_current_user_exists!
+
   def create
-    current_user = User.where(login: 'rondy').first
-
-    unless current_user
-      head 403
-      return
-    end
-
     unless current_user.role == 'manager'
       json_response = {
         'message' => 'Project could not be created!',
@@ -58,5 +54,15 @@ class ProjectsController < ApplicationController
     respond_to do |format|
       format.json { render inline: json_response.to_json }
     end
+  end
+
+  private
+
+  def ensure_current_user_exists!
+    head 403 unless current_user
+  end
+
+  def current_user
+    @current_user ||= User.where(login: 'rondy').first
   end
 end
