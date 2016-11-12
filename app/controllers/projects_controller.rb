@@ -1,6 +1,12 @@
 class ProjectsController < ApplicationController
   def create
-    current_user = User.find_or_create_by!(login: 'rondy')
+    current_user = User.where(login: 'rondy').first
+
+    unless current_user
+      head 403
+      return
+    end
+
     created_project =
       current_user.projects.create!(
         params.require(:project).permit(:name)

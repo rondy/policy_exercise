@@ -6,6 +6,8 @@ feature 'User can create projects', type: :request do
       'ACCEPT' => 'application/json'
     }
 
+    User.create!(login: 'rondy')
+
     expect do
       post '/projects',
         params: { 'project' => { 'name' => 'Trilha de estudos' } },
@@ -18,10 +20,25 @@ feature 'User can create projects', type: :request do
     project_trilha = user_rondy.projects.last
     expect(project_trilha.name).to eq('Trilha de estudos')
 
+    expect(response.status).to eq(200)
     expect(JSON.parse(response.body)).to eq(
       {
         'message' => 'Project "Trilha de estudos" has been created!'
       }
     )
+  end
+
+  scenario 'when user does not exist' do
+    headers = {
+      'ACCEPT' => 'application/json'
+    }
+
+    expect do
+      post '/projects',
+        params: { 'project' => { 'name' => 'Trilha de estudos' } },
+        headers: headers
+    end.not_to change { Project.count }
+
+    expect(response.status).to eq(403)
   end
 end
