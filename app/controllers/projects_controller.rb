@@ -33,6 +33,19 @@ class ProjectsController < ApplicationController
       return
     end
 
+    if Redis.new.get("projects_creation_blocked:user_#{current_user.id}").to_s == '1'
+      json_response = {
+        'message' => 'Project could not be created!',
+        'reason' => 'The project creation config is blocked for this user'
+      }
+
+      respond_to do |format|
+        format.json { render inline: json_response.to_json, status: 422 }
+      end
+
+      return
+    end
+
     created_project =
       current_user.projects.create!(
         params.require(:project).permit(:name)

@@ -9,6 +9,7 @@ feature 'User can create projects', type: :request do
     user_rondy = User.create!(login: 'rondy')
     user_rondy.update(role: 'manager')
     user_rondy.projects.delete_all
+    Redis.new.set("projects_creation_blocked:user_#{user_rondy.id}", 0)
 
     expect do
       post '/projects',
@@ -52,6 +53,7 @@ feature 'User can create projects', type: :request do
     user_rondy = User.create!(login: 'rondy')
     user_rondy.update(role: 'guest')
     user_rondy.projects.delete_all
+    Redis.new.set("projects_creation_blocked:user_#{user_rondy.id}", 0)
 
     expect do
       post '/projects',
@@ -76,6 +78,7 @@ feature 'User can create projects', type: :request do
     user_rondy = User.create!(login: 'rondy')
     user_rondy.update(role: 'manager')
     5.times { |number| user_rondy.projects.create!(name: "Projeto ##{number}") }
+    Redis.new.set("projects_creation_blocked:user_#{user_rondy.id}", 0)
 
     expect do
       post '/projects',
@@ -88,6 +91,31 @@ feature 'User can create projects', type: :request do
       {
         'message' => 'Project could not be created!',
         'reason' => 'User can only create 5 projects'
+      }
+    )
+  end
+
+  scenario 'when the project creation config is blocked' do
+    headers = {
+      'ACCEPT' => 'application/json'
+    }
+
+    user_rondy = User.create!(login: 'rondy')
+    user_rondy.update(role: 'manager')
+    user_rondy.projects.delete_all
+    Redis.new.set("projects_creation_blocked:user_#{user_rondy.id}", 1)
+
+    expect do
+      post '/projects',
+        params: { 'project' => { 'name' => 'Trilha de estudos' } },
+        headers: headers
+    end.not_to change { Project.count }
+
+    expect(response.status).to eq(422)
+    expect(JSON.parse(response.body)).to eq(
+      {
+        'message' => 'Project could not be created!',
+        'reason' => 'The project creation config is blocked for this user'
       }
     )
   end
