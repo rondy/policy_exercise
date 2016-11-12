@@ -6,7 +6,7 @@ feature 'User can create projects', type: :request do
       'ACCEPT' => 'application/json'
     }
 
-    User.create!(login: 'rondy')
+    User.create!(login: 'rondy', role: 'manager')
 
     expect do
       post '/projects',
@@ -40,5 +40,27 @@ feature 'User can create projects', type: :request do
     end.not_to change { Project.count }
 
     expect(response.status).to eq(403)
+  end
+
+  scenario 'when user is not a manager' do
+    headers = {
+      'ACCEPT' => 'application/json'
+    }
+
+    User.create!(login: 'rondy', role: 'guest')
+
+    expect do
+      post '/projects',
+        params: { 'project' => { 'name' => 'Trilha de estudos' } },
+        headers: headers
+    end.not_to change { Project.count }
+
+    expect(response.status).to eq(422)
+    expect(JSON.parse(response.body)).to eq(
+      {
+        'message' => 'Project could not be created!',
+        'reason' => 'User must be a manager'
+      }
+    )
   end
 end

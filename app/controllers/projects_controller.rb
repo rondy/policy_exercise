@@ -7,6 +7,19 @@ class ProjectsController < ApplicationController
       return
     end
 
+    unless current_user.role == 'manager'
+      json_response = {
+        'message' => 'Project could not be created!',
+        'reason' => 'User must be a manager'
+      }
+
+      respond_to do |format|
+        format.json { render inline: json_response.to_json, status: 422 }
+      end
+
+      return
+    end
+
     created_project =
       current_user.projects.create!(
         params.require(:project).permit(:name)
