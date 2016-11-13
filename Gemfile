@@ -13,6 +13,7 @@ gem 'redis'
 group :development, :test do
   gem 'byebug', platform: :mri
   gem 'capybara'
+  gem 'guard-rspec', require: false
   gem 'rspec-rails'
   gem 'spring-commands-rspec'
 end
