@@ -4,17 +4,21 @@ class ProjectsController < ApplicationController
   def create
     checking_result = check_user_is_allowed_to_create_project(current_user)
 
-    if checking_result[:is_allowed]
-      created_project =
-        create_project_for_user(
-          current_user,
-          params.require(:project).permit(:name)
-        )
+    unless checking_result[:is_allowed]
+      render_failed_permission_for_project_creation(
+        checking_result[:error_reason]
+      )
 
-      render_successful_project_creation(created_project)
-    else
-      render_failed_permission_for_project_creation(checking_result[:error_reason])
+      return
     end
+
+    created_project =
+      create_project_for_user(
+        current_user,
+        params.require(:project).permit(:name)
+      )
+
+    render_successful_project_creation(created_project)
   end
 
   private
