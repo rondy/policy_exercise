@@ -6,7 +6,8 @@ class ProjectsController < ApplicationController
 
     if checking_result[:is_allowed]
       created_project =
-        current_user.projects.create!(
+        create_project_for_user(
+          current_user,
           params.require(:project).permit(:name)
         )
 
@@ -47,6 +48,10 @@ class ProjectsController < ApplicationController
     end
 
     checking_result
+  end
+
+  def create_project_for_user(user, project_params)
+    user.projects.create!(project_params)
   end
 
   def render_successful_project_creation(created_project)
