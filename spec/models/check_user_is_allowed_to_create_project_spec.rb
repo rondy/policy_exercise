@@ -37,7 +37,7 @@ describe CheckUserIsAllowedToCreateProject do
     expect(checking_result[:error_reason]).to eq('User can only create 5 projects')
   end
 
-  it 'is not allowed when when the project creation config is blocked' do
+  it 'is not allowed when the project creation config is blocked' do
     user_rondy = User.create!(login: 'rondy')
     user_rondy.update(role: 'manager')
     user_rondy.projects.delete_all
