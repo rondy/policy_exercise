@@ -2,19 +2,13 @@ require 'rails_helper'
 
 feature 'User can create projects', type: :request do
   scenario 'creating a project with success' do
-    headers = {
-      'ACCEPT' => 'application/json'
-    }
-
     user_rondy = User.create!(login: 'rondy')
     user_rondy.update(role: 'manager')
     user_rondy.projects.delete_all
     Redis.new.set("projects_creation_blocked:user_#{user_rondy.id}", 0)
 
     expect do
-      post '/projects',
-        params: { 'project' => { 'name' => 'Trilha de estudos' } },
-        headers: headers
+      create_project_with('project' => { 'name' => 'Trilha de estudos' })
     end.to change { Project.count }.by(1)
 
     user_rondy = User.where(login: 'rondy').first!
@@ -32,33 +26,21 @@ feature 'User can create projects', type: :request do
   end
 
   scenario 'when user does not exist' do
-    headers = {
-      'ACCEPT' => 'application/json'
-    }
-
     expect do
-      post '/projects',
-        params: { 'project' => { 'name' => 'Trilha de estudos' } },
-        headers: headers
+      create_project_with('project' => { 'name' => 'Trilha de estudos' })
     end.not_to change { Project.count }
 
     expect(response.status).to eq(403)
   end
 
   scenario 'when user is not allowed to create a project (in this case, user is not a manager)' do
-    headers = {
-      'ACCEPT' => 'application/json'
-    }
-
     user_rondy = User.create!(login: 'rondy')
     user_rondy.update(role: 'guest')
     user_rondy.projects.delete_all
     Redis.new.set("projects_creation_blocked:user_#{user_rondy.id}", 0)
 
     expect do
-      post '/projects',
-        params: { 'project' => { 'name' => 'Trilha de estudos' } },
-        headers: headers
+      create_project_with('project' => { 'name' => 'Trilha de estudos' })
     end.not_to change { Project.count }
 
     expect(response.status).to eq(422)
@@ -68,5 +50,11 @@ feature 'User can create projects', type: :request do
         'reason' => 'User must be a manager'
       }
     )
+  end
+
+  def create_project_with(params)
+    post '/projects',
+      params: params,
+      headers: { 'ACCEPT' => 'application/json' }
   end
 end
