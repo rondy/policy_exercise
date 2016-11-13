@@ -1,6 +1,6 @@
 class CheckUserIsAllowedToCreateProject
   def call(user)
-    if user.role != 'manager'
+    if !user_is_manager?(user)
       {
         is_allowed: false,
         error_reason: 'User must be a manager'
@@ -21,5 +21,11 @@ class CheckUserIsAllowedToCreateProject
         error_reason: nil
       }
     end
+  end
+
+  private
+
+  def user_is_manager?(user)
+    user.manager?
   end
 end
