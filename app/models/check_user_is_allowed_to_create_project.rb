@@ -1,6 +1,6 @@
 class CheckUserIsAllowedToCreateProject
   def call(user)
-    if !user_is_manager?(user)
+    if user_is_not_manager?(user)
       {
         is_allowed: false,
         error_reason: 'User must be a manager'
@@ -25,8 +25,8 @@ class CheckUserIsAllowedToCreateProject
 
   private
 
-  def user_is_manager?(user)
-    user.manager?
+  def user_is_not_manager?(user)
+    !user.manager?
   end
 
   def user_is_beyond_the_projects_count_limit_rule?(user)
