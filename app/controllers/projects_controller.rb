@@ -4,9 +4,9 @@ class ProjectsController < ApplicationController
   def create
     checking_result = check_user_is_allowed_to_create_project(current_user)
 
-    unless checking_result[:is_allowed]
+    unless checking_result.is_allowed?
       render_failed_permission_for_project_creation(
-        checking_result[:error_reason]
+        checking_result.error_reason
       )
 
       return

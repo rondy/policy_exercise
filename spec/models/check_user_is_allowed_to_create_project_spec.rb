@@ -7,8 +7,8 @@ describe CheckUserIsAllowedToCreateProject do
 
     checking_result = perform_check(user)
 
-    expect(checking_result[:is_allowed]).to be(true)
-    expect(checking_result[:error_reason]).to be(nil)
+    expect(checking_result.is_allowed?).to be(true)
+    expect(checking_result.error_reason).to be(nil)
   end
 
   it 'is not allowed when user is not manager' do
@@ -19,8 +19,8 @@ describe CheckUserIsAllowedToCreateProject do
 
     checking_result = perform_check(user)
 
-    expect(checking_result[:is_allowed]).to be(false)
-    expect(checking_result[:error_reason]).to eq(:user_must_be_a_manager)
+    expect(checking_result.is_allowed?).to be(false)
+    expect(checking_result.error_reason).to eq(:user_must_be_a_manager)
   end
 
   it 'is not allowed when user is beyond the "projects count limit" rule' do
@@ -31,8 +31,8 @@ describe CheckUserIsAllowedToCreateProject do
 
     checking_result = perform_check(user)
 
-    expect(checking_result[:is_allowed]).to be(false)
-    expect(checking_result[:error_reason]).to eq(:user_must_be_within_the_projects_count_limit_rule)
+    expect(checking_result.is_allowed?).to be(false)
+    expect(checking_result.error_reason).to eq(:user_must_be_within_the_projects_count_limit_rule)
   end
 
   it 'is not allowed when the project creation config is blocked' do
@@ -43,8 +43,8 @@ describe CheckUserIsAllowedToCreateProject do
 
     checking_result = perform_check(user)
 
-    expect(checking_result[:is_allowed]).to be(false)
-    expect(checking_result[:error_reason]).to eq(:project_creation_config_must_be_no_blocked)
+    expect(checking_result.is_allowed?).to be(false)
+    expect(checking_result.error_reason).to eq(:project_creation_config_must_be_no_blocked)
   end
 
   def create_user
