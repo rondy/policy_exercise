@@ -52,11 +52,15 @@ class ProjectsController < ApplicationController
   def render_failed_permission_for_project_creation(error_reason)
     json_response = {
       'message' => 'Project could not be created!',
-      'reason' => error_reason
+      'reason' => present_failed_permission_for_project_creation(error_reason)
     }
 
     respond_to do |format|
       format.json { render inline: json_response.to_json, status: 422 }
     end
+  end
+
+  def present_failed_permission_for_project_creation(error_reason)
+    PresentFailedPermissionForProjectCreation.new.call(error_reason)
   end
 end
