@@ -14,6 +14,7 @@ group :development, :test do
   gem 'byebug', platform: :mri
   gem 'capybara'
   gem 'rspec-rails'
+  gem 'spring-commands-rspec'
 end
 
 group :development do
