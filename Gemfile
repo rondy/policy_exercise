@@ -1,6 +1,5 @@
 source 'https://rubygems.org'
 
-
 gem 'rails', '~> 5.0.0', '>= 5.0.0.1'
 gem 'sqlite3'
 gem 'sass-rails', '~> 5.0'
@@ -9,6 +8,7 @@ gem 'coffee-rails', '~> 4.2'
 gem 'jquery-rails'
 gem 'jbuilder', '~> 2.5'
 gem 'redis'
+gem 'contracts'
 
 group :development, :test do
   gem 'byebug', platform: :mri
