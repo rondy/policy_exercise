@@ -88,4 +88,32 @@ describe CheckUserIsAllowedToCreateProject do
   def perform_check(user)
     CheckUserIsAllowedToCreateProject.new.call(user)
   end
+
+  describe described_class::Validator do
+    it 'returns a valid result when all the rules are obeyed' do
+      valid_user = double(
+        manager?: true,
+        beyond_the_projects_count_limit_rule?: false,
+        project_creation_config_is_blocked?: false
+      )
+
+      validator = described_class.new(user: valid_user)
+
+      expect(validator.valid?).to be(true)
+      expect(validator.error_reason).to be(nil)
+    end
+
+    it 'returns a invalid result when one of the rules are not obeyed' do
+      invalid_user = double(
+        manager?: false,
+        beyond_the_projects_count_limit_rule?: false,
+        project_creation_config_is_blocked?: false
+      )
+
+      validator = described_class.new(user: invalid_user)
+
+      expect(validator.valid?).to be(false)
+      expect(validator.error_reason).to be(:user_must_be_a_manager)
+    end
+  end
 end

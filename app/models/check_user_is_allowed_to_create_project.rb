@@ -5,10 +5,8 @@ class CheckUserIsAllowedToCreateProject
     if validator.valid?
       build_result_for_allowed_permission
     else
-      error_reason = extract_error_reason_from(validator)
-
       build_result_for_denied_permission(
-        error_reason: error_reason
+        error_reason: validator.error_reason
       )
     end
   end
@@ -45,6 +43,10 @@ class CheckUserIsAllowedToCreateProject
     validate :user_must_be_manager
     validate :user_must_be_within_the_projects_count_limit_rule
     validate :project_creation_config_must_be_no_blocked
+
+    def error_reason
+      self.errors.to_a.first.try(:to_sym)
+    end
 
     private
 
