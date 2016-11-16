@@ -6,6 +6,10 @@ class CheckUserIsAllowedToCreateProject
     include Contracts::Core
     include Contracts::Builtin
 
+    def self.valid?(val)
+      val.respond_to?(:is_allowed?) && val.respond_to?(:error_reason)
+    end
+
     def self.build_allowed_permission
       self.new(is_allowed: true)
     end
