@@ -6,45 +6,30 @@ class CheckUserIsAllowedToCreateProject
     include Contracts::Core
     include Contracts::Builtin
 
-    def is_allowed?
-      raise NotImplementedError
+    def self.build_allowed_permission
+      self.new(is_allowed: true)
     end
 
-    def error_reason
-      raise NotImplementedError
-    end
-  end
-
-  class AllowedPermissionCheckResult < PermissionCheckResult
-    Contract None => TrueClass
-    def is_allowed?
-      true
+    def self.build_denied_permission(error_reason:)
+      self.new(is_allowed: false, error_reason: error_reason)
     end
 
-    Contract None => nil
-    def error_reason
-      nil
-    end
-  end
-
-  class DeniedPermissionCheckResult < PermissionCheckResult
-    def initialize(error_reason: nil)
-      super()
+    def initialize(is_allowed:, error_reason: nil)
+      @is_allowed = is_allowed
       @error_reason = error_reason
     end
 
-    Contract None => FalseClass
+    Contract None => Bool
     def is_allowed?
-      false
+      !!@is_allowed
     end
 
-    Contract None => Symbol
+    Contract None => Maybe[Symbol]
     def error_reason
       @error_reason
     end
   end
 
-  # Contract User => Or[AllowedPermissionCheckResult, DeniedPermissionCheckResult]
   Contract User => PermissionCheckResult
   def call(user)
     validator = build_validator_for(user)
@@ -65,11 +50,11 @@ class CheckUserIsAllowedToCreateProject
   end
 
   def build_result_for_allowed_permission
-    AllowedPermissionCheckResult.new
+    PermissionCheckResult.build_allowed_permission
   end
 
   def build_result_for_denied_permission(error_reason:)
-    DeniedPermissionCheckResult.new(error_reason: error_reason)
+    PermissionCheckResult.build_denied_permission(error_reason: error_reason)
   end
 
   class Validator
