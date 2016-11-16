@@ -34,7 +34,14 @@ class CheckUserIsAllowedToCreateProject
     end
   end
 
-  Contract User => PermissionCheckResult
+  UserOnPermissionContext =
+    RespondTo[
+      :manager?,
+      :beyond_the_projects_count_limit_rule?,
+      :project_creation_config_is_blocked?
+    ]
+
+  Contract UserOnPermissionContext => PermissionCheckResult
   def call(user)
     validator = build_validator_for(user)
 
